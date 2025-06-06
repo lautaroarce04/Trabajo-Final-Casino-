@@ -1,0 +1,13 @@
+{
+  "devDependencies": {
+    "@types/figlet": "^1.7.0",
+    "@types/node": "^22.15.24",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
+  },
+  "dependencies": {
+    "chalk": "^5.4.1",
+    "figlet": "^1.8.1",
+    "inquirer": "^12.6.3"
+  }
+}
