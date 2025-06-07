@@ -49,7 +49,7 @@ export class TragamonedasLoca extends JuegoBase {
       ganancia = apuesta * 3;
       console.log(chalk.green("¡3 iguales! Ganaste 3x tu apuesta 🎉"));
     } else {
-      console.log(chalk.red("No ganaste, suerte la próxima."));
+      console.log(chalk.red("No ganaste, suerte la próxima 💀."));
     }
 
     return ganancia;

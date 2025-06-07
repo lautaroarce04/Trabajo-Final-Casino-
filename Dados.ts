@@ -23,7 +23,7 @@ export class Dados extends JuegoBase {
         console.log(chalk.green("¡Ganaste! Suma mágica 🎉"));
         return apuesta * 5;
       } else {
-        console.log(chalk.red("No ganaste, suerte la próxima."));
+        console.log(chalk.red("No ganaste, suerte la próxima 💀."));
         return 0;
       }
 

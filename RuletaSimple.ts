@@ -1,32 +1,62 @@
 import { JuegoBase } from "./JuegoBase";
+import chalk from "chalk";
+import * as readlineSync from "readline-sync";
 
 export class RuletaSimple extends JuegoBase {
-  private numeroElegido?: number;
-
   constructor() {
     super("Ruleta", 5);
   }
 
-  setNumeroElegido(numero: number): void {
-    if (!Number.isInteger(numero) || numero < 0 || numero > 36) {
-      throw new Error("Número inválido: debe ser un entero entre 0 y 36");
+  private mostrarTabla(): void {
+    let rojo = new Set([1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36]);
+    let negro = new Set([2, 4, 6, 8, 10, 11, 13, 15, 17, 20, 22, 24, 26, 28, 29, 31, 33, 35]);
+
+    let colorNumero = (n: number): string => {
+      if (n === 0) return chalk.black.bgGreen("  0 ");
+      if (rojo.has(n)) return chalk.white.bgRed(n.toString().padStart(2, " ") + " ");
+      if (negro.has(n)) return chalk.white.bgBlack(n.toString().padStart(2, " ") + " ");
+      return n.toString();
+    };
+
+    console.log(chalk.yellow("══════════════════════════════════════"));
+    console.log(chalk.yellow("🎰 Tablero de ruleta – 🎰"));
+    console.log(chalk.yellow("══════════════════════════════════════"));
+    console.log(" ".repeat(16) + colorNumero(0));
+    console.log();
+
+    for (let fila = 0; fila < 3; fila++) {
+      let linea = "";
+      for (let col = 0; col < 12; col++) {
+        let num = col * 3 + (3 - fila);
+        linea += colorNumero(num) + " ";
+      }
+      console.log(linea);
     }
-    this.numeroElegido = numero;
+
+    console.log(chalk.yellow("══════════════════════════════════════\n"));
   }
 
   jugar(apuesta: number): number {
     this.validarApuesta(apuesta);
 
-    if (this.numeroElegido === undefined) {
-      throw new Error("Primero debe elegir un número entre 0 y 36");
+    this.mostrarTabla();
+
+    let numeroStr = readlineSync.question("Elegi un numero del 0 al 36: ");
+    let numero = parseInt(numeroStr);
+
+    if (!Number.isInteger(numero) || numero < 0 || numero > 36) {
+      throw new Error("Número inválido. Debe ser un entero entre 0 y 36.");
     }
 
-    const numeroSalio = Math.floor(Math.random() * 37); 
-    console.log(`Salió el número: ${numeroSalio}`);
+    let numeroSalio = Math.floor(Math.random() * 37);
+    console.log(`Salió el número: ${chalk.bold(numeroSalio)}`);
 
-    if (numeroSalio === this.numeroElegido) {
+    if (numero === numeroSalio) {
+      console.log(chalk.green("¡Ganaste 36x tu apuesta! 🎉"));
       return apuesta * 36;
     }
+
+    console.log(chalk.red("No acertaste. 😢"));
     return 0;
   }
 }

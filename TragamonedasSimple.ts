@@ -40,7 +40,7 @@ export class TragamonedasSimple extends JuegoBase {
       ganancia = apuesta * 2;
       console.log(chalk.green("¡2 iguales! Ganaste 2x tu apuesta 🎉"));
     } else {
-      console.log(chalk.red("No ganaste, suerte la próxima."));
+      console.log(chalk.red("No ganaste, suerte la próxima 💀."));
     }
 
     return ganancia;
