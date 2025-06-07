@@ -5,14 +5,14 @@ import chalk from "chalk";
 import figlet from "figlet";
 
 // Ruta del archivo de saldo
-const archivo = "saldo.txt";
+let archivo = "saldo.txt";
 let saldo = fs.existsSync(archivo) ? parseFloat(fs.readFileSync(archivo, "utf-8")) : 100;
 
 // Instancia del casino
-const casino = new Casino();
+let casino = new Casino();
 
 // Interfaz readline
-const rl = readline.createInterface({
+let rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout,
 });
@@ -29,9 +29,9 @@ function preguntar(pregunta: string): Promise<string> {
 
 // Función principal
 async function main() {
-  const nombre = await preguntar("Ingrese su nombre y apellido: ");
-  const juegoNombre = await preguntar("Elija un juego: ");
-  const juego = casino.elegirJuego(juegoNombre);
+  let nombre = await preguntar("Ingrese su nombre y apellido: ");
+  let juegoNombre = await preguntar("Elija un juego: ");
+  let juego = casino.elegirJuego(juegoNombre);
 
   if (!juego) {
     console.log(chalk.red("Juego no encontrado."));
@@ -41,12 +41,12 @@ async function main() {
 
   console.log(chalk.blue(`Hola ${nombre}, has seleccionado: ${chalk.bold(juego.nombre)}`));
 
-  const apuestaStr = await preguntar(`Ingrese monto a apostar (mínimo $${juego.apuestaMinima}): `);
-  const apuesta = Number(apuestaStr);
+  let apuestaStr = await preguntar(`Ingrese monto a apostar (mínimo $${juego.apuestaMinima}): `);
+  let apuesta = Number(apuestaStr);
 
   try {
     saldo -= apuesta;
-    const ganancia = juego.jugar(apuesta);
+    let ganancia = juego.jugar(apuesta);
     saldo += ganancia;
     fs.writeFileSync(archivo, saldo.toString());
     console.log(chalk.white(`Saldo actual: $${saldo}`));

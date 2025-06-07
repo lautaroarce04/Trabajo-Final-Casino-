@@ -1,6 +1,8 @@
 import { JuegoBase } from "./JuegoBase";
 import chalk from "chalk";
-import * as readlineSync from "readline-sync";
+import promptSync from "prompt-sync";
+
+const prompt = promptSync();
 
 export class RuletaSimple extends JuegoBase {
   constructor() {
@@ -41,22 +43,23 @@ export class RuletaSimple extends JuegoBase {
 
     this.mostrarTabla();
 
-    let numeroStr = readlineSync.question("Elegi un numero del 0 al 36: ");
-    let numero = parseInt(numeroStr);
+    const numeroStr = prompt("Elegi un numero del 0 al 36: ");
+    const numero = parseInt(numeroStr);
 
     if (!Number.isInteger(numero) || numero < 0 || numero > 36) {
       throw new Error("Número inválido. Debe ser un entero entre 0 y 36.");
     }
 
-    let numeroSalio = Math.floor(Math.random() * 37);
-    console.log(`Salió el número: ${chalk.bold(numeroSalio)}`);
+    const numeroSalio = Math.floor(Math.random() * 37);
+
+    console.log(`\nSalió el número: ${chalk.bold(numeroSalio)}\n`);
 
     if (numero === numeroSalio) {
       console.log(chalk.green("¡Ganaste 36x tu apuesta! 🎉"));
       return apuesta * 36;
+    } else {
+      console.log(chalk.red("No acertaste. 😢"));
+      return 0;
     }
-
-    console.log(chalk.red("No acertaste. 😢"));
-    return 0;
   }
 }

@@ -17,26 +17,26 @@ export class TragamonedasLoca extends JuegoBase {
     }
 
     // Tirada: sacar 5 símbolos aleatorios
-    const tirada: string[] = [];
+    let tirada: string[] = [];
     for (let i = 0; i < 5; i++) {
-      const idx = Math.floor(Math.random() * this.simbolos.length);
+      let idx = Math.floor(Math.random() * this.simbolos.length);
       tirada.push(this.simbolos[idx]);
     }
 
     // Mostrar tirada con diseño tipo fila con colores
     console.log(chalk.magenta("╔═══════════════════════╗"));
-    console.log(chalk.magenta("║   Tragamonedas Loca    ║"));
+    console.log(chalk.magenta("║   Tragamonedas Loca   ║"));
     console.log(chalk.magenta("╚═══════════════════════╝"));
     console.log("Tirada: " + tirada.map(s => chalk.cyan.bold(s)).join(" | "));
     console.log();
 
     // Evaluar ganancia
-    const frec: Record<string, number> = {};
+    let frec: Record<string, number> = {};
     tirada.forEach(s => {
       frec[s] = (frec[s] || 0) + 1;
     });
 
-    const maxRepeticiones = Math.max(...Object.values(frec));
+    let maxRepeticiones = Math.max(...Object.values(frec));
     let ganancia = 0;
 
     if (maxRepeticiones === 5) {
@@ -49,7 +49,7 @@ export class TragamonedasLoca extends JuegoBase {
       ganancia = apuesta * 3;
       console.log(chalk.green("¡3 iguales! Ganaste 3x tu apuesta 🎉"));
     } else {
-      console.log(chalk.red("No ganaste, suerte la próxima 💀."));
+      console.log(chalk.red("No ganaste, suerte la próxima."));
     }
 
     return ganancia;

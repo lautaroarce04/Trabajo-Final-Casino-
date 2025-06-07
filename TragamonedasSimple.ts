@@ -17,21 +17,21 @@ export class TragamonedasSimple extends JuegoBase {
     }
 
     // Tirada: sacar 3 símbolos aleatorios
-    const tirada: string[] = [];
+    let tirada: string[] = [];
     for (let i = 0; i < 3; i++) {
-      const idx = Math.floor(Math.random() * this.simbolos.length);
+      let idx = Math.floor(Math.random() * this.simbolos.length);
       tirada.push(this.simbolos[idx]);
     }
 
     // Mostrar tirada con diseño
-    console.log(chalk.yellow("╔════════════════════╗"));
+    console.log(chalk.yellow("╔═════════════════════╗"));
     console.log(chalk.yellow("║ Tragamonedas Simple ║"));
-    console.log(chalk.yellow("╚════════════════════╝"));
+    console.log(chalk.yellow("╚═════════════════════╝"));
     console.log("Tirada: " + tirada.map(s => chalk.red.bold(s)).join(" | "));
     console.log();
 
     // Evaluar ganancia: si 3 iguales gana 10x apuesta, si 2 iguales gana 2x, sino pierde
-    const unique = new Set(tirada);
+    let unique = new Set(tirada);
     let ganancia = 0;
     if (unique.size === 1) {
       ganancia = apuesta * 10;
@@ -40,7 +40,7 @@ export class TragamonedasSimple extends JuegoBase {
       ganancia = apuesta * 2;
       console.log(chalk.green("¡2 iguales! Ganaste 2x tu apuesta 🎉"));
     } else {
-      console.log(chalk.red("No ganaste, suerte la próxima 💀."));
+      console.log(chalk.red("No ganaste, suerte la próxima."));
     }
 
     return ganancia;
