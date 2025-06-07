@@ -1,21 +1,34 @@
 import { JuegoBase } from "./JuegoBase";
+import chalk from "chalk";
 
 export class Dados extends JuegoBase {
   constructor() {
-    super("Dados", 10); // nombre y apuesta mínima
+    super("Dados", 2);
   }
 
   jugar(apuesta: number): number {
-    this.validarApuesta(apuesta);
-    // Tirar dos dados (1 a 6)
-    let dado1 = Math.floor(Math.random() * 6) + 1;
-    let dado2 = Math.floor(Math.random() * 6) + 1;
-    let suma = dado1 + dado2;
+    try {
+      this.validarApuesta(apuesta);
 
-    // Ganas si la suma es 7 u 11, ganas el doble de la apuesta
-    if (suma === 7 || suma === 11) {
-      return apuesta * 2;
-    } else {
+      const dado1 = Math.floor(Math.random() * 6) + 1;
+      const dado2 = Math.floor(Math.random() * 6) + 1;
+      const suma = dado1 + dado2;
+
+      console.log(chalk.blue("🎲 Lanzando dados..."));
+      console.log(chalk.blue(`Dado 1: [${dado1}]`));
+      console.log(chalk.blue(`Dado 2: [${dado2}]`));
+      console.log(chalk.white(`Suma: ${suma}`));
+
+      if (suma === 7 || suma === 11) {
+        console.log(chalk.green("¡Ganaste! Suma mágica 🎉"));
+        return apuesta * 5;
+      } else {
+        console.log(chalk.red("No ganaste, suerte la próxima."));
+        return 0;
+      }
+
+    } catch (error) {
+      console.log(chalk.red("Error en Dados: "), error);
       return 0;
     }
   }
