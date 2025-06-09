@@ -1,17 +1,17 @@
 import { JuegoBase } from "./JuegoBase";
-import { TragamonedasSimple } from "./TragamonedasSimple";
-import { TragamonedasLoca } from "./TragamonedasLoca";
-import { RuletaSimple } from "./RuletaSimple";
-import { Dados } from "./Dados";
+import { JuegoFactory } from "./PatronJuego";
 
 export class Casino {
   private juegos: JuegoBase[] = [];
 
   constructor() {
-    this.juegos.push(new TragamonedasSimple());
-    this.juegos.push(new TragamonedasLoca());
-    this.juegos.push(new RuletaSimple());
-    this.juegos.push(new Dados());
+    const tipos = ["TragamonedasSimple", "TragamonedasLoca", "RuletaSimple", "Dados"];
+    for (const tipo of tipos) {
+      const juego = JuegoFactory.crearJuego(tipo);
+      if (juego) {
+        this.juegos.push(juego);
+      }
+    }
   }
 
   listarJuegos(): string[] {
