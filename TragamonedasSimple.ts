@@ -5,7 +5,7 @@ export class TragamonedasSimple extends JuegoBase {
   private simbolos: string[];
 
   constructor() {
-    super("Tragamonedas Simple", 1);
+    super("Tragamonedas Simple", 5);
     this.simbolos = ["🍒", "🍋", "🍉", "⭐", "7️⃣"];
   }
 
@@ -24,9 +24,9 @@ export class TragamonedasSimple extends JuegoBase {
     }
 
     // Mostrar tirada con diseño
-    console.log(chalk.yellow("╔═════════════════════╗"));
-    console.log(chalk.yellow("║ Tragamonedas Simple ║"));
-    console.log(chalk.yellow("╚═════════════════════╝"));
+    console.log(chalk.yellow("╔══════════════════════════╗"));
+    console.log(chalk.yellow("║ 🎰TRAGAMONEDAS SIMPLE🎰  ║"));
+    console.log(chalk.yellow("╚══════════════════════════╝"));
     console.log("Tirada: " + tirada.map(s => chalk.red.bold(s)).join(" | "));
     console.log();
 

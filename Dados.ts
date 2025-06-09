@@ -3,7 +3,7 @@ import chalk from "chalk";
 
 export class Dados extends JuegoBase {
   constructor() {
-    super("Dados", 2);
+    super("Dados", 5);
   }
 
   jugar(apuesta: number): number {

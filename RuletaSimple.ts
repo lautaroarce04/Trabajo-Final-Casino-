@@ -6,7 +6,7 @@ const prompt = promptSync();
 
 export class RuletaSimple extends JuegoBase {
   constructor() {
-    super("Ruleta", 5);
+    super("Ruleta", 200);
   }
 
   private mostrarTabla(): void {
@@ -38,25 +38,61 @@ export class RuletaSimple extends JuegoBase {
     console.log(chalk.yellow("══════════════════════════════════════\n"));
   }
 
-  jugar(apuesta: number): number {
-    this.validarApuesta(apuesta);
+  jugar(apuestaTotal: number): number {
+    this.validarApuesta(apuestaTotal);
 
     this.mostrarTabla();
 
-    const numeroStr = prompt("Elegi un numero del 0 al 36: ");
-    const numero = parseInt(numeroStr);
+    const opcionesApuesta = [10, 20, 50, 100, 200];
 
-    if (!Number.isInteger(numero) || numero < 0 || numero > 36) {
-      throw new Error("Número inválido. Debe ser un entero entre 0 y 36.");
+    // Preguntar apuesta por número y validar que sea opción válida y no mayor que el total
+    let apuestaPorNumero: number;
+    while (true) {
+      const apuestaStr = prompt(`¿Cuánto querés apostar por número? Opciones: ${opcionesApuesta.join(", ")}: `);
+      apuestaPorNumero = parseInt(apuestaStr);
+      if (
+        opcionesApuesta.includes(apuestaPorNumero) &&
+        apuestaPorNumero <= apuestaTotal
+      ) break;
+      console.log(chalk.red(`Apuesta inválida. Debe ser una de las opciones y menor o igual a ${apuestaTotal}.`));
+    }
+
+    // Calcular máximo números que puede elegir
+    const maxNumeros = Math.floor(apuestaTotal / apuestaPorNumero);
+
+    // Preguntar números elegidos y validar
+    let numerosElegidos: number[] = [];
+    while (true) {
+      const numerosStr = prompt(`Elegí hasta ${maxNumeros} número(s) del 0 al 36 (separados por coma): `);
+      numerosElegidos = numerosStr
+        .split(",")
+        .map(n => parseInt(n.trim()))
+        .filter(n => Number.isInteger(n) && n >= 0 && n <= 36);
+
+      const numerosUnicos = new Set(numerosElegidos);
+
+      if (numerosElegidos.length === 0) {
+        console.log(chalk.red("Debes ingresar al menos un número válido."));
+      } else if (numerosUnicos.size !== numerosElegidos.length) {
+        console.log(chalk.red("No se permiten números repetidos."));
+      } else if (numerosElegidos.length > maxNumeros) {
+        console.log(chalk.red(`No podés elegir más de ${maxNumeros} números.`));
+      } else {
+        break;
+      }
     }
 
     const numeroSalio = Math.floor(Math.random() * 37);
 
     console.log(`\nSalió el número: ${chalk.bold(numeroSalio)}\n`);
 
-    if (numero === numeroSalio) {
-      console.log(chalk.green("¡Ganaste 36x tu apuesta! 🎉"));
-      return apuesta * 36;
+    if (numerosElegidos.includes(numeroSalio)) {
+      // Ganancia = apuestaPorNumero * 36 por cada número acertado
+      // Pero como el número salido es uno solo, se gana solo si coincide con uno elegido
+      // Se gana 36 veces la apuesta por número, no importa cuantos números se eligieron
+      const ganancia = apuestaPorNumero * 36;
+      console.log(chalk.green(`¡Ganaste! 🎉 Ganás ${ganancia} (36x la apuesta por número).`));
+      return ganancia;
     } else {
       console.log(chalk.red("No acertaste. 😢"));
       return 0;

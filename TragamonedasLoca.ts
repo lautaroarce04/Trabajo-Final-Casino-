@@ -5,7 +5,7 @@ export class TragamonedasLoca extends JuegoBase {
   private simbolos: string[];
 
   constructor() {
-    super("Tragamonedas Loca", 2);
+    super("Tragamonedas Loca", 10);
     this.simbolos = ["🍒", "🍋", "🍉", "⭐", "7️⃣", "💎", "🔥"];
   }
 
@@ -24,9 +24,9 @@ export class TragamonedasLoca extends JuegoBase {
     }
 
     // Mostrar tirada con diseño tipo fila con colores
-    console.log(chalk.magenta("╔═══════════════════════╗"));
-    console.log(chalk.magenta("║   Tragamonedas Loca   ║"));
-    console.log(chalk.magenta("╚═══════════════════════╝"));
+console.log(chalk.whiteBright("╔══════════════════════════════════════╗"));
+console.log(chalk.whiteBright("║         🎰TRAGAMONEDAS LOCA🎰        ║"));
+console.log(chalk.whiteBright("╚══════════════════════════════════════╝"));
     console.log("Tirada: " + tirada.map(s => chalk.cyan.bold(s)).join(" | "));
     console.log();
 
