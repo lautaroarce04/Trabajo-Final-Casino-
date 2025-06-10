@@ -6,6 +6,54 @@ export class Dados extends JuegoBase {
     super("Dados", 5);
   }
 
+  private dadoASCII(numero: number): string[] {
+    const caras: { [key: string]: string[] } = {
+      "1": [
+        "┌─────┐",
+        "│     │",
+        "│  ●  │",
+        "│     │",
+        "└─────┘"
+      ],
+      "2": [
+        "┌─────┐",
+        "│ ●   │",
+        "│     │",
+        "│   ● │",
+        "└─────┘"
+      ],
+      "3": [
+        "┌─────┐",
+        "│ ●   │",
+        "│  ●  │",
+        "│   ● │",
+        "└─────┘"
+      ],
+      "4": [
+        "┌─────┐",
+        "│ ● ● │",
+        "│     │",
+        "│ ● ● │",
+        "└─────┘"
+      ],
+      "5": [
+        "┌─────┐",
+        "│ ● ● │",
+        "│  ●  │",
+        "│ ● ● │",
+        "└─────┘"
+      ],
+      "6": [
+        "┌─────┐",
+        "│ ● ● │",
+        "│ ● ● │",
+        "│ ● ● │",
+        "└─────┘"
+      ]
+    };
+    return caras[numero.toString()];
+  }
+
   jugar(apuesta: number): number {
     try {
       this.validarApuesta(apuesta);
@@ -15,8 +63,17 @@ export class Dados extends JuegoBase {
       const suma = dado1 + dado2;
 
       console.log(chalk.blue("🎲 Lanzando dados..."));
-      console.log(chalk.blue(`Dado 1: [${dado1}]`));
-      console.log(chalk.blue(`Dado 2: [${dado2}]`));
+
+      const dado1ASCII = this.dadoASCII(dado1);
+      const dado2ASCII = this.dadoASCII(dado2);
+
+      for (let i = 0; i < dado1ASCII.length; i++) {
+        // Mostramos ambos dados lado a lado, en azul para el contorno y puntos en amarillo
+        const lineaDado1 = dado1ASCII[i].replace(/●/g, chalk.yellow("●"));
+        const lineaDado2 = dado2ASCII[i].replace(/●/g, chalk.yellow("●"));
+        console.log(chalk.blue(lineaDado1 + "  " + lineaDado2));
+      }
+
       console.log(chalk.white(`Suma: ${suma}`));
 
       if (suma === 7 || suma === 11) {
@@ -26,7 +83,6 @@ export class Dados extends JuegoBase {
         console.log(chalk.red("No ganaste (hay que sacar entre 7 y 11), suerte la próxima."));
         return 0;
       }
-
     } catch (error) {
       console.log(chalk.red("Error en Dados: "), (error as Error).message);
       return 0;
