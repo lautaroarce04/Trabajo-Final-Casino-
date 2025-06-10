@@ -68,7 +68,7 @@ export class Dados extends JuegoBase {
       const dado2ASCII = this.dadoASCII(dado2);
 
       for (let i = 0; i < dado1ASCII.length; i++) {
-        // Mostramos ambos dados lado a lado, en azul para el contorno y puntos en amarillo
+        // Mostramos ambos dados lado a lado 
         const lineaDado1 = dado1ASCII[i].replace(/●/g, chalk.white("●"));
         const lineaDado2 = dado2ASCII[i].replace(/●/g, chalk.white("●"));
         console.log(chalk.red(lineaDado1 + "  " + lineaDado2));
