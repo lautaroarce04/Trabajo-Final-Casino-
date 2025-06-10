@@ -90,7 +90,7 @@ async function main() {
     }
   }
 
-  console.log(chalk.yellowBright("\n🎉 ¡Gracias por jugar en el CASINO! Hasta la próxima."));
+  console.log(chalk.yellowBright("\n🎉 ¡Gracias por jugar en el CASINO! 👋 Hasta la próxima."));
   rl.close();
 }
 
