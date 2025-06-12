@@ -1,8 +1,8 @@
 import { Casino } from "./Casino";
-import * as readline from "readline";
 import * as fs from "fs";
 import chalk from "chalk";
 import figlet from "figlet";
+import inquirer from "inquirer";
 
 // Archivo de saldo
 const archivo = "saldo.txt";
@@ -13,13 +13,7 @@ let saldo = fs.existsSync(archivo)
 // Instancia del casino
 const casino = new Casino();
 
-// Interfaz readline
-const rl = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout,
-});
-
-// Mostrar título (solo en amarillo)
+// Mostrar título 
 function mostrarTitulo() {
   const ascii = figlet.textSync("CASINO", { font: "Standard" });
   console.log(chalk.yellowBright(ascii));
@@ -33,35 +27,48 @@ function mostrarEncabezado() {
   console.log(chalk.magenta("─".repeat(60)));
 }
 
-// Preguntar usando promesa
-function preguntar(pregunta: string): Promise<string> {
-  return new Promise(resolve => rl.question(pregunta, resolve));
-}
-
 // Lógica del juego
 async function jugar(nombre: string) {
   console.log(chalk.yellowBright("\n🎲 Juegos disponibles:"));
-  casino.listarJuegos().forEach((juego, index) => {
-    console.log(chalk.green(`  ${index + 1}. ${juego}`));
-  });
 
-  const juegoNombre = await preguntar(chalk.blue("\n🎮 Elija un juego: "));
+  // Obtener lista de juegos
+  const juegos = casino.listarJuegos();
+
+  const respuesta = await inquirer.prompt([
+    {
+      type: "rawlist",
+      name: "juegoSeleccionado",
+      message: "🎮 Elija un juego:",
+      choices: juegos,
+    },
+  ]);
+
+  const juegoNombre = respuesta.juegoSeleccionado;
   const juego = casino.elegirJuego(juegoNombre);
 
   if (!juego) {
-    console.log(chalk.red("❌ Juego no encontrado."));
-    return;
+    return; // No mostrar nada si no existe el juego
   }
 
   console.log(chalk.blue(`Hola ${nombre}, has seleccionado: `) + chalk.bold(juego.nombre));
 
-  const apuestaStr = await preguntar(chalk.blue(`💸 Ingrese monto a apostar (mínimo $${juego.apuestaMinima}): `));
-  const apuesta = Number(apuestaStr);
+  // Preguntar apuesta validando
+  const { apuestaStr } = await inquirer.prompt([
+    {
+      type: "input",
+      name: "apuestaStr",
+      message: `💸 Ingrese monto a apostar (mínimo $${juego.apuestaMinima}):`,
+      validate: (input: string) => {
+        const apuesta = Number(input);
+        if (isNaN(apuesta)) return "Debe ingresar un número válido";
+        if (apuesta < juego.apuestaMinima) return `La apuesta mínima es $${juego.apuestaMinima}`;
+        if (apuesta > saldo) return `No tiene saldo suficiente ($${saldo})`;
+        return true;
+      },
+    },
+  ]);
 
-  if (isNaN(apuesta) || apuesta < juego.apuestaMinima || apuesta > saldo) {
-    console.log(chalk.red("❌ Apuesta inválida."));
-    return;
-  }
+  const apuesta = Number(apuestaStr);
 
   try {
     saldo -= apuesta;
@@ -78,20 +85,56 @@ async function jugar(nombre: string) {
 // Función principal
 async function main() {
   mostrarEncabezado();
-  const nombre = await preguntar(chalk.blue("🧠 Ingrese su nombre y apellido: "));
+
+  const { nombre, edadStr } = await inquirer.prompt([
+    {
+      type: "input",
+      name: "nombre",
+      message: "🧠 Ingrese su nombre y apellido:",
+      validate: (input: string) => (input.trim() === "" ? "Debe ingresar un nombre" : true),
+    },
+    {
+      type: "input",
+      name: "edadStr",
+      message: "🔞 Ingrese su edad:",
+      validate: (input: string) => {
+        const edad = Number(input);
+        if (isNaN(edad)) return "Debe ingresar un número válido";
+        if (edad < 0) return "La edad no puede ser negativa";
+        return true;
+      },
+    },
+  ]);
+
+  const edad = Number(edadStr);
+
+  if (edad < 18) {
+    console.log(chalk.red.bold("\n🚫 Tenés que tener 18 años para jugar."));
+    return;
+  }
 
   let continuar = true;
   while (continuar) {
     await jugar(nombre);
-    const respuesta = await preguntar(chalk.cyan("\n🔁 ¿Querés volver a jugar? (si / no): "));
-    continuar = respuesta.trim().toLowerCase() === "si";
+
+    const { respuesta } = await inquirer.prompt([
+      {
+        type: "rawlist",
+        name: "respuesta",
+        message: "🔁 ¿Querés volver a jugar?",
+        choices: ["Si", "No"],
+        default: "No",
+      },
+    ]);
+
+    continuar = respuesta === "Si";
+
     if (continuar) {
       mostrarEncabezado();
     }
   }
 
   console.log(chalk.yellowBright("\n🎉 ¡Gracias por jugar en el CASINO! 👋 Hasta la próxima."));
-  rl.close();
 }
 
 main();
