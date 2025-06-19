@@ -253,12 +253,13 @@ export class RuletaSimple extends JuegoBase {
     }
 
     if (colorElegido && colorElegido === colorSalio) {
-      console.log(chalk.green(`¡Adivinaste el color! Ganás 500`));
-      ganancia += 500;
-    }
+  const premioColor = (modo === 2) ? 1000 : 500;
+  console.log(chalk.green(`¡Adivinaste el color! Ganás ${premioColor}`));
+  ganancia += premioColor;
+}
 
     if (ganancia === 0) console.log(chalk.red("No ganaste esta vez 😢"));
 
-    return ganancia;
+    return ganancia - montoApostar;
   }
 }

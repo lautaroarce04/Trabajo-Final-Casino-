@@ -13,25 +13,21 @@ let saldo = fs.existsSync(archivo)
 // Instancia del casino
 const casino = new Casino();
 
-// Mostrar título
 function mostrarTitulo() {
   const ascii = figlet.textSync("CASINO", { font: "Standard" });
   console.log(chalk.yellowBright(ascii));
 }
 
-// Mostrar encabezado
 function mostrarEncabezado() {
   mostrarTitulo();
-  console.log(chalk.magenta("─".repeat(60)));
+  console.log(chalk.magenta("─".repeat(50)));
   console.log(chalk.green.bold(`💰 Saldo actual: $${saldo}`));
-  console.log(chalk.magenta("─".repeat(60)));
+  console.log(chalk.magenta("─".repeat(50)));
 }
 
-// Lógica del juego
 async function jugar(nombre: string) {
   console.log(chalk.yellowBright("\n🎲 Juegos disponibles:"));
 
-  // Obtener lista de juegos
   const juegos = casino.listarJuegos();
 
   const respuesta = await inquirer.prompt([
@@ -51,8 +47,13 @@ async function jugar(nombre: string) {
   console.log(chalk.blue(`Hola ${nombre}, has seleccionado: `) + chalk.bold(juego.nombre));
 
   try {
-    const ganancia = await juego.jugar(saldo);
-    saldo += ganancia;
+    // Pasamos el saldo actual al juego
+    const gananciaNeta = await juego.jugar(saldo);
+
+    // Actualizamos saldo
+    saldo += gananciaNeta;
+
+    // Guardamos saldo actualizado
     fs.writeFileSync(archivo, saldo.toString());
 
     console.log(chalk.green(`✅ Juego completado. Saldo actual: $${saldo}`));
@@ -61,27 +62,25 @@ async function jugar(nombre: string) {
   }
 }
 
-// Función principal
 async function main() {
   mostrarEncabezado();
-  
-  let nombre: string = "";
-  let edad: number = 0;
 
-  // Validación de nombre y edad con control de límites
+  let nombre = "";
+  let edad = 0;
+
   while (true) {
     const respuesta = await inquirer.prompt([
       {
         type: "input",
         name: "nombre",
         message: "🧠 Ingrese su nombre y apellido:",
-        validate: (input: string) => (input.trim() === "" ? "Debe ingresar un nombre" : true),
+        validate: (input) => (input.trim() === "" ? "Debe ingresar un nombre" : true),
       },
       {
         type: "input",
         name: "edadStr",
         message: "🔞 Ingrese su edad:",
-        validate: (input: string) => {
+        validate: (input) => {
           const edad = Number(input);
           if (isNaN(edad)) return "Debe ingresar un número válido";
           if (edad < 0) return "🤨Como vas a tener la vida en negativo?🤨";
@@ -104,6 +103,7 @@ async function main() {
 
   let continuar = true;
   while (continuar) {
+    mostrarEncabezado();
     await jugar(nombre);
 
     const { respuesta } = await inquirer.prompt([
@@ -117,15 +117,9 @@ async function main() {
     ]);
 
     continuar = respuesta === "Si";
-
-    if (continuar) {
-      mostrarEncabezado();
-    }
   }
 
   console.log(chalk.yellowBright("\n🎉 ¡Gracias por jugar en el CASINO! 👋 Hasta la próxima."));
 }
 
 main();
-
-declare module "figlet";
