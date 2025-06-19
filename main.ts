@@ -13,7 +13,7 @@ let saldo = fs.existsSync(archivo)
 // Instancia del casino
 const casino = new Casino();
 
-// Mostrar título 
+// Mostrar título
 function mostrarTitulo() {
   const ascii = figlet.textSync("CASINO", { font: "Standard" });
   console.log(chalk.yellowBright(ascii));
@@ -46,33 +46,12 @@ async function jugar(nombre: string) {
   const juegoNombre = respuesta.juegoSeleccionado;
   const juego = casino.elegirJuego(juegoNombre);
 
-  if (!juego) {
-    return; // No mostrar nada si no existe el juego
-  }
+  if (!juego) return;
 
   console.log(chalk.blue(`Hola ${nombre}, has seleccionado: `) + chalk.bold(juego.nombre));
 
-  // Preguntar apuesta validando
-  const { apuestaStr } = await inquirer.prompt([
-    {
-      type: "input",
-      name: "apuestaStr",
-      message: `💸 Ingrese monto a apostar (mínimo $${juego.apuestaMinima}):`,
-      validate: (input: string) => {
-        const apuesta = Number(input);
-        if (isNaN(apuesta)) return "Debe ingresar un número válido";
-        if (apuesta < juego.apuestaMinima) return `La apuesta mínima es $${juego.apuestaMinima}`;
-        if (apuesta > saldo) return `No tiene saldo suficiente ($${saldo})`;
-        return true;
-      },
-    },
-  ]);
-
-  const apuesta = Number(apuestaStr);
-
   try {
-    saldo -= apuesta;
-    const ganancia = juego.jugar(apuesta);
+    const ganancia = await juego.jugar(saldo);
     saldo += ganancia;
     fs.writeFileSync(archivo, saldo.toString());
 
@@ -85,32 +64,42 @@ async function jugar(nombre: string) {
 // Función principal
 async function main() {
   mostrarEncabezado();
+  
+  let nombre: string = "";
+  let edad: number = 0;
 
-  const { nombre, edadStr } = await inquirer.prompt([
-    {
-      type: "input",
-      name: "nombre",
-      message: "🧠 Ingrese su nombre y apellido:",
-      validate: (input: string) => (input.trim() === "" ? "Debe ingresar un nombre" : true),
-    },
-    {
-      type: "input",
-      name: "edadStr",
-      message: "🔞 Ingrese su edad:",
-      validate: (input: string) => {
-        const edad = Number(input);
-        if (isNaN(edad)) return "Debe ingresar un número válido";
-        if (edad < 0) return "La edad no puede ser negativa";
-        return true;
+  // Validación de nombre y edad con control de límites
+  while (true) {
+    const respuesta = await inquirer.prompt([
+      {
+        type: "input",
+        name: "nombre",
+        message: "🧠 Ingrese su nombre y apellido:",
+        validate: (input: string) => (input.trim() === "" ? "Debe ingresar un nombre" : true),
       },
-    },
-  ]);
+      {
+        type: "input",
+        name: "edadStr",
+        message: "🔞 Ingrese su edad:",
+        validate: (input: string) => {
+          const edad = Number(input);
+          if (isNaN(edad)) return "Debe ingresar un número válido";
+          if (edad < 0) return "🤨Como vas a tener la vida en negativo?🤨";
+          if (edad < 18) return "👶No aceptamos a bebes🍼";
+          if (edad > 99) return "💀FOA, RE VIEJO, No aceptamos fosiles🦖";
+          return true;
+        },
+      },
+    ]);
 
-  const edad = Number(edadStr);
+    nombre = respuesta.nombre;
+    edad = Number(respuesta.edadStr);
 
-  if (edad < 18) {
-    console.log(chalk.red.bold("\n🚫 Tenés que tener 18 años para jugar."));
-    return;
+    if (edad === 99) {
+      console.log(chalk.cyanBright("¡👴🏻Jubilado hasta en la vida! ¡Pero bueno, mientras pagues 😃👍🏻!"));
+    }
+
+    if (edad >= 18 && edad <= 99) break;
   }
 
   let continuar = true;

@@ -1,47 +1,92 @@
 import { JuegoBase } from "./JuegoBase";
 import chalk from "chalk";
+import inquirer from "inquirer";
+import * as fs from "fs";
+
+// Archivo de saldo
+const archivo = "saldo.txt";
+let saldo = fs.existsSync(archivo)
+  ? parseFloat(fs.readFileSync(archivo, "utf-8"))
+  : 100;
 
 export class TragamonedasSimple extends JuegoBase {
   private simbolos: string[];
 
   constructor() {
-    super("Tragamonedas Simple", 5);
-    this.simbolos = ["🍒", "🍋", "🍉", "⭐", "7️⃣"];
+    super("Tragamonedas Simple", 10);
+    this.simbolos = ["🍒", "🍋", "🍉", "⭐", "7️⃣", "🔔"];
   }
 
-  jugar(apuesta: number): number {
-    this.validarApuesta(apuesta);
+  private async animarGiro(): Promise<void> {
+    for (let i = 0; i < 10; i++) {
+      const giro = Array.from({ length: 3 }, () =>
+        chalk.yellowBright(this.simbolos[Math.floor(Math.random() * this.simbolos.length)])
+      ).join("  ");
 
-    if (this.simbolos.length < 1) {
-      throw new Error("No hay símbolos definidos.");
+      console.clear();
+      console.log(chalk.blueBright("╔═══════════════════════════════════╗"));
+      console.log(chalk.blueBright("║") + chalk.bold("     🎰 TRAGAMONEDAS SIMPLE 🎰     ") + chalk.blueBright("║"));
+      console.log(chalk.blueBright("╠═══════════════════════════════════╣"));
+      console.log(chalk.blueBright("║") + "                                 " + chalk.blueBright("║"));
+      console.log(chalk.blueBright("║") + "        " + giro + "        " + chalk.blueBright("║"));
+      console.log(chalk.blueBright("║") + "                                 " + chalk.blueBright("║"));
+      console.log(chalk.blueBright("╚═══════════════════════════════════╝\n"));
+
+      await new Promise(resolve => setTimeout(resolve, 100 + i * 10));
     }
+  }
 
-    // Tirada: sacar 3 símbolos aleatorios
-    let tirada: string[] = [];
+  async jugar(_: number): Promise<number> {
+    const { apuestaStr } = await inquirer.prompt([
+      {
+        type: "input",
+        name: "apuestaStr",
+        message: `💸 Ingrese monto a apostar (mínimo $${this.apuestaMinima}):`,
+        validate: (input: string) => {
+          const n = Number(input);
+          if (isNaN(n)) return "Debe ingresar un número válido";
+          if (n < this.apuestaMinima) return `La apuesta mínima es $${this.apuestaMinima}`;
+          if (n > saldo) return `Saldo insuficiente (actual: $${saldo})`;
+          return true;
+        },
+      },
+    ]);
+
+    const apuesta = Number(apuestaStr);
+    saldo -= apuesta;
+
+    await this.animarGiro();
+
+    const resultado: string[] = [];
     for (let i = 0; i < 3; i++) {
-      let idx = Math.floor(Math.random() * this.simbolos.length);
-      tirada.push(this.simbolos[idx]);
+      const idx = Math.floor(Math.random() * this.simbolos.length);
+      resultado.push(this.simbolos[idx]);
     }
 
-    // Mostrar tirada con diseño
-    console.log(chalk.yellow("╔══════════════════════════╗"));
-    console.log(chalk.yellow("║ 🎰TRAGAMONEDAS SIMPLE🎰  ║"));
-    console.log(chalk.yellow("╚══════════════════════════╝"));
-    console.log("Tirada: " + tirada.map(s => chalk.red.bold(s)).join(" | "));
-    console.log();
+    const tiradaFinal = resultado.map(s => chalk.bold.yellow(s)).join("  ");
 
-    // Evaluar ganancia: si 3 iguales gana 10x apuesta, si 2 iguales gana 2x, sino pierde
-    let unique = new Set(tirada);
+    console.clear();
+    console.log(chalk.blueBright("╔═══════════════════════════════════╗"));
+    console.log(chalk.blueBright("║") + chalk.bold("     🎰 TRAGAMONEDAS SIMPLE 🎰     ") + chalk.blueBright("║"));
+    console.log(chalk.blueBright("╠═══════════════════════════════════╣"));
+    console.log(chalk.blueBright("║") + "                                 " + chalk.blueBright("║"));
+    console.log(chalk.blueBright("║") + "        " + tiradaFinal + "        " + chalk.blueBright("║"));
+    console.log(chalk.blueBright("║") + "                                 " + chalk.blueBright("║"));
+    console.log(chalk.blueBright("╚═══════════════════════════════════╝\n"));
+
+    const iguales = resultado.every((val) => val === resultado[0]);
+
     let ganancia = 0;
-    if (unique.size === 1) {
-      ganancia = apuesta * 10;
-      console.log(chalk.green("¡3 iguales! Ganaste 10x tu apuesta 🎉"));
-    } else if (unique.size === 2) {
-      ganancia = apuesta * 2;
-      console.log(chalk.green("¡2 iguales! Ganaste 2x tu apuesta 🎉"));
+
+    if (iguales) {
+      ganancia = apuesta * 5;
+      console.log(chalk.greenBright(`¡Bien! 3 iguales → Ganaste $${ganancia} 🎉`));
     } else {
-      console.log(chalk.red("No ganaste, suerte la próxima."));
+      console.log(chalk.red("No hubo suerte esta vez 💸"));
     }
+
+    saldo += ganancia;
+    fs.writeFileSync(archivo, saldo.toString());
 
     return ganancia;
   }

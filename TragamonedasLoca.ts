@@ -1,56 +1,97 @@
 import { JuegoBase } from "./JuegoBase";
 import chalk from "chalk";
+import inquirer from "inquirer";
+import * as fs from "fs";
+
+// Archivo de saldo
+const archivo = "saldo.txt";
+let saldo = fs.existsSync(archivo)
+  ? parseFloat(fs.readFileSync(archivo, "utf-8"))
+  : 100;
 
 export class TragamonedasLoca extends JuegoBase {
   private simbolos: string[];
 
   constructor() {
-    super("Tragamonedas Loca", 10);
-    this.simbolos = ["🍒", "🍋", "🍉", "⭐", "7️⃣", "💎", "🔥"];
+    super("Tragamonedas Loca", 20); // apuesta mínima de 20
+    this.simbolos = ["🍒", "🍋", "🍉", "⭐", "7️⃣", "💎", "🔔"];
   }
 
-  jugar(apuesta: number): number {
-    this.validarApuesta(apuesta);
+  private async animarGiro(): Promise<void> {
+    for (let i = 0; i < 15; i++) {
+      const tirada = Array.from({ length: 5 }, () =>
+        chalk.magentaBright(this.simbolos[Math.floor(Math.random() * this.simbolos.length)])
+      ).join("  ");
 
-    if (this.simbolos.length < 1) {
-      throw new Error("No hay símbolos definidos.");
+      console.clear();
+      console.log(chalk.cyanBright("╔════════════════════════════════════════════════╗"));
+      console.log(chalk.cyanBright("║") + chalk.bold.yellow("        🤪 TRAGAMONEDAS LOCA 🤪         ") + chalk.cyanBright("║"));
+      console.log(chalk.cyanBright("╠════════════════════════════════════════════════╣"));
+      console.log(chalk.cyanBright("║") + "                                              " + chalk.cyanBright("║"));
+      console.log(chalk.cyanBright("║") + "      " + tirada + "      " + chalk.cyanBright("║"));
+      console.log(chalk.cyanBright("║") + "                                              " + chalk.cyanBright("║"));
+      console.log(chalk.cyanBright("╚════════════════════════════════════════════════╝\n"));
+
+      await new Promise(resolve => setTimeout(resolve, 100 + i * 10)); // desaceleración
     }
+  }
 
-    // Tirada: sacar 5 símbolos aleatorios
-    let tirada: string[] = [];
+  async jugar(_: number): Promise<number> {
+    const { apuestaStr } = await inquirer.prompt([
+      {
+        type: "input",
+        name: "apuestaStr",
+        message: `💸 Ingrese monto a apostar (mínimo $${this.apuestaMinima}):`,
+        validate: (input: string) => {
+          const n = Number(input);
+          if (isNaN(n)) return "Debe ingresar un número válido";
+          if (n < this.apuestaMinima) return `La apuesta mínima es $${this.apuestaMinima}`;
+          if (n > saldo) return `Saldo insuficiente (actual: $${saldo})`;
+          return true;
+        },
+      },
+    ]);
+
+    const apuesta = Number(apuestaStr);
+    saldo -= apuesta;
+
+    await this.animarGiro(); // Mostrar animación
+
+    const tirada: string[] = [];
     for (let i = 0; i < 5; i++) {
-      let idx = Math.floor(Math.random() * this.simbolos.length);
+      const idx = Math.floor(Math.random() * this.simbolos.length);
       tirada.push(this.simbolos[idx]);
     }
 
-    // Mostrar tirada con diseño tipo fila con colores
-console.log(chalk.whiteBright("╔══════════════════════════════════════╗"));
-console.log(chalk.whiteBright("║         🎰TRAGAMONEDAS LOCA🎰        ║"));
-console.log(chalk.whiteBright("╚══════════════════════════════════════╝"));
-    console.log("Tirada: " + tirada.map(s => chalk.cyan.bold(s)).join(" | "));
-    console.log();
+    const resultado = tirada.map(s => chalk.bold.magenta(s)).join("  ");
 
-    // Evaluar ganancia
-    let frec: Record<string, number> = {};
-    tirada.forEach(s => {
-      frec[s] = (frec[s] || 0) + 1;
-    });
+    console.clear();
+    console.log(chalk.cyanBright("╔════════════════════════════════════════════════╗"));
+    console.log(chalk.cyanBright("║") + chalk.bold.yellow("        🤪 TRAGAMONEDAS LOCA 🤪         ") + chalk.cyanBright("║"));
+    console.log(chalk.cyanBright("╠════════════════════════════════════════════════╣"));
+    console.log(chalk.cyanBright("║") + "                                              " + chalk.cyanBright("║"));
+    console.log(chalk.cyanBright("║") + "      " + resultado + "      " + chalk.cyanBright("║"));
+    console.log(chalk.cyanBright("║") + "                                              " + chalk.cyanBright("║"));
+    console.log(chalk.cyanBright("╚════════════════════════════════════════════════╝\n"));
 
-    let maxRepeticiones = Math.max(...Object.values(frec));
+    const unique = new Set(tirada);
     let ganancia = 0;
 
-    if (maxRepeticiones === 5) {
-      ganancia = apuesta * 50;
-      console.log(chalk.green("¡5 iguales! Ganaste 50x tu apuesta 🎉🎉🎉"));
-    } else if (maxRepeticiones === 4) {
-      ganancia = apuesta * 10;
-      console.log(chalk.green("¡4 iguales! Ganaste 10x tu apuesta 🎉🎉"));
-    } else if (maxRepeticiones === 3) {
-      ganancia = apuesta * 3;
-      console.log(chalk.green("¡3 iguales! Ganaste 3x tu apuesta 🎉"));
+    if (unique.size === 1) {
+      ganancia = apuesta * 20;
+      console.log(chalk.greenBright("¡FOA! 5 símbolos iguales → 20x tu apuesta 🎆"));
+    } else if (unique.size <= 2) {
+      ganancia = apuesta * 5;
+      console.log(chalk.green("¡Que capo! 4 iguales → 5x tu apuesta 🎉"));
+    } else if (unique.size <= 3) {
+      ganancia = apuesta * 2;
+      console.log(chalk.green("¡ni tan mal! 3 iguales → 2x tu apuesta"));
     } else {
-      console.log(chalk.red("No ganaste, suerte la próxima."));
+      console.log(chalk.red("Uh que lastima... seguí intentando 💸"));
     }
+
+    saldo += ganancia;
+    fs.writeFileSync(archivo, saldo.toString());
 
     return ganancia;
   }

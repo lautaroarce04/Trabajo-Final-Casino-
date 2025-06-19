@@ -2,6 +2,7 @@
   "devDependencies": {
     "@types/figlet": "^1.7.0",
     "@types/node": "^22.15.30",
+    "@types/play-sound": "^1.1.2",
     "@types/prompt-sync": "^4.2.3",
     "@types/readline-sync": "^1.4.8",
     "ts-node": "^10.9.2",
@@ -12,6 +13,7 @@
     "chalk": "^5.4.1",
     "figlet": "^1.8.1",
     "inquirer": "^12.6.3",
+    "play-sound": "^1.1.6",
     "prompt-sync": "^4.2.0",
     "readline-sync": "^1.4.10"
   }
