@@ -28,7 +28,6 @@ export class Dados extends JuegoBase {
   }
 
   async jugar(saldoActual: number): Promise<number> {
-    console.clear();
     console.log(chalk.magenta("═".repeat(50)));
     console.log(chalk.green(`💰 Saldo actual: $${saldoActual}`));
     console.log(chalk.magenta("═".repeat(50)));

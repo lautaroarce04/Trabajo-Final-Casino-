@@ -16,6 +16,7 @@ const casino = new Casino();
 function mostrarTitulo() {
   const ascii = figlet.textSync("CASINO", { font: "Standard" });
   console.log(chalk.yellowBright(ascii));
+  console.log(chalk.greenBright.bold("\n🎰 ¡Bienvenido al mejor casino! 🍀\n"));
 }
 
 function mostrarEncabezado() {
@@ -26,44 +27,63 @@ function mostrarEncabezado() {
 }
 
 async function jugar(nombre: string) {
-  console.log(chalk.yellowBright("\n🎲 Juegos disponibles:"));
+  while (true) {
+    console.log(chalk.yellowBright("\n🎲 Juegos disponibles:"));
 
-  const juegos = casino.listarJuegos();
+    const juegos = casino.listarJuegos();
 
-  const respuesta = await inquirer.prompt([
-    {
-      type: "rawlist",
-      name: "juegoSeleccionado",
-      message: "🎮 Elija un juego:",
-      choices: juegos,
-    },
-  ]);
+    const respuesta = await inquirer.prompt([
+      {
+        type: "list",
+        name: "juegoSeleccionado",
+        message: "🎮 Elija un juego:",
+        choices: juegos,
+      },
+    ]);
 
-  const juegoNombre = respuesta.juegoSeleccionado;
-  const juego = casino.elegirJuego(juegoNombre);
+    const juegoNombre = respuesta.juegoSeleccionado;
+    const juego = casino.elegirJuego(juegoNombre);
 
-  if (!juego) return;
+    if (!juego) {
+      console.log(chalk.red("❌ No se encontró el juego seleccionado."));
+      continue; // volver a mostrar opciones
+    }
 
-  console.log(chalk.blue(`Hola ${nombre}, has seleccionado: `) + chalk.bold(juego.nombre));
+    // Validar si saldo alcanza para la apuesta mínima del juego
+    if (saldo < juego.apuestaMinima) {
+      console.log(
+        chalk.redBright(
+          `❌ Saldo insuficiente para jugar "${juegoNombre}". Mínimo requerido: $${juego.apuestaMinima}, saldo actual: $${saldo}`
+        )
+      );
+      // Volver a mostrar opciones sin salir
+      continue;
+    }
 
-  try {
-    // Pasamos el saldo actual al juego
-    const gananciaNeta = await juego.jugar(saldo);
+    console.log(chalk.cyanBright(`\n🎮 Has seleccionado el juego: ${chalk.bold(juegoNombre)}\n`));
 
-    // Actualizamos saldo
-    saldo += gananciaNeta;
+    try {
+      const gananciaNeta = await juego.jugar(saldo);
+      saldo += gananciaNeta;
+      fs.writeFileSync(archivo, saldo.toString());
 
-    // Guardamos saldo actualizado
-    fs.writeFileSync(archivo, saldo.toString());
+      console.log(chalk.green(`✅ Juego completado. Saldo actual: $${saldo}`));
+    } catch (e) {
+      console.log(chalk.red("⚠️  Error: " + (e instanceof Error ? e.message : "Error desconocido")));
+    }
 
-    console.log(chalk.green(`✅ Juego completado. Saldo actual: $${saldo}`));
-  } catch (e) {
-    console.log(chalk.red("⚠️  Error: " + (e instanceof Error ? e.message : "Error desconocido")));
+    break; // Salir del while después de jugar con éxito
   }
 }
 
+
 async function main() {
   mostrarEncabezado();
+
+  if (saldo < 10) {
+    console.log(chalk.redBright("\n❌ Saldo insuficiente para jugar. junta platita y veni.\n"));
+    process.exit(0);
+  }
 
   let nombre = "";
   let edad = 0;
@@ -83,9 +103,9 @@ async function main() {
         validate: (input) => {
           const edad = Number(input);
           if (isNaN(edad)) return "Debe ingresar un número válido";
-          if (edad < 0) return "🤨Como vas a tener la vida en negativo?🤨";
-          if (edad < 18) return "👶No aceptamos a bebes🍼";
-          if (edad > 99) return "💀FOA, RE VIEJO, No aceptamos fosiles🦖";
+          if (edad < 0) return "🤨 ¿Cómo vas a tener la vida en negativo?";
+          if (edad < 18) return "👶 No aceptamos a bebés 🍼";
+          if (edad > 99) return "💀 FOA, RE VIEJO. No aceptamos fósiles 🦖";
           return true;
         },
       },
@@ -95,7 +115,7 @@ async function main() {
     edad = Number(respuesta.edadStr);
 
     if (edad === 99) {
-      console.log(chalk.cyanBright("¡👴🏻Jubilado hasta en la vida! ¡Pero bueno, mientras pagues 😃👍🏻!"));
+      console.log(chalk.cyanBright("¡👴🏻 Jubilado hasta en la vida! ¡Pero bueno, mientras pagues 😃👍🏻!"));
     }
 
     if (edad >= 18 && edad <= 99) break;
@@ -106,9 +126,14 @@ async function main() {
     mostrarEncabezado();
     await jugar(nombre);
 
+    if (saldo < 10) {
+      console.log(chalk.redBright("\n❌ Saldo insuficiente para continuar jugando. El programa se cerrará.\n"));
+      process.exit(0);
+    }
+
     const { respuesta } = await inquirer.prompt([
       {
-        type: "rawlist",
+        type: "list",
         name: "respuesta",
         message: "🔁 ¿Querés volver a jugar?",
         choices: ["Si", "No"],

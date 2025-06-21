@@ -27,7 +27,6 @@ export class TragamonedasSimple extends JuegoBase {
   }
 
   async jugar(saldoActual: number): Promise<number> {
-    console.clear();
     console.log(chalk.green(`💰 Saldo actual: $${saldoActual}`));
     console.log(chalk.magenta("═".repeat(50)));
 
