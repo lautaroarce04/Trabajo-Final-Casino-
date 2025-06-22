@@ -11,6 +11,7 @@
   "dependencies": {
     "boxen": "^8.0.1",
     "chalk": "^5.4.1",
+    "enquirer": "^2.4.1",
     "figlet": "^1.8.1",
     "inquirer": "^12.6.3",
     "play-sound": "^1.1.6",

@@ -66,23 +66,35 @@ export class TragamonedasLoca extends JuegoBase {
     console.log(chalk.cyanBright("║") + "                                              " + chalk.cyanBright("║"));
     console.log(chalk.cyanBright("╚════════════════════════════════════════════════╝\n"));
 
-    const unique = new Set(tirada);
-    let gananciaNeta = 0;
-
-    if (unique.size === 1) {
-      gananciaNeta = apuesta * 20 - apuesta;  // premio - apuesta
-      console.log(chalk.greenBright("¡FOA! 5 símbolos iguales → 20x tu apuesta 🎆"));
-    } else if (unique.size <= 2) {
-      gananciaNeta = apuesta * 5 - apuesta;
-      console.log(chalk.green("¡Que capo! 4 iguales → 5x tu apuesta 🎉"));
-    } else if (unique.size <= 3) {
-      gananciaNeta = apuesta * 2 - apuesta;
-      console.log(chalk.green("¡ni tan mal! 3 iguales → 2x tu apuesta"));
-    } else {
-      gananciaNeta = -apuesta;
-      console.log(chalk.red("Uh que lastima... seguí intentando 💸"));
-    }
-
-    return gananciaNeta;
-  }
+   const contador: Record<string, number> = {};
+for (const simbolo of tirada) {
+  contador[simbolo] = (contador[simbolo] || 0) + 1;
 }
+
+const cantidades = Object.values(contador).sort((a, b) => b - a); // orden descendente
+const maxIguales = cantidades[0];
+let gananciaNeta = 0;
+
+const multiplicadores = {
+  cincoIguales: 20,
+  cuatroIguales: 5,
+  tresIguales: 2
+};
+
+if (maxIguales === 5) {
+  gananciaNeta = apuesta * multiplicadores.cincoIguales - apuesta;
+  console.log(chalk.greenBright("¡FOA! 5 símbolos iguales → 20x tu apuesta 🎆"));
+} else if (maxIguales === 4) {
+  gananciaNeta = apuesta * multiplicadores.cuatroIguales - apuesta;
+  console.log(chalk.green("¡Que capo! 4 iguales → 5x tu apuesta 🎉"));
+} else if (maxIguales === 3) {
+  gananciaNeta = apuesta * multiplicadores.tresIguales - apuesta;
+  console.log(chalk.green("¡Ni tan mal! 3 iguales → 2x tu apuesta"));
+} else {
+  gananciaNeta = -apuesta;
+  console.log(chalk.red("Uh qué lástima... seguí intentando 💸"));
+}
+
+return gananciaNeta;
+  }
+}  

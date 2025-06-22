@@ -17,14 +17,24 @@ function mostrarTitulo() {
   const ascii = figlet.textSync("CASINO", { font: "Standard" });
   console.log(chalk.yellowBright(ascii));
   console.log(chalk.greenBright.bold("\n🎰 ¡Bienvenido al mejor casino! 🍀\n"));
+  console.log(chalk.magentaBright("─".repeat(50)));
+  console.log();
 }
 
-function mostrarEncabezado() {
-  mostrarTitulo();
+function mostrarSaldoActual() {
   console.log(chalk.magenta("─".repeat(50)));
   console.log(chalk.green.bold(`💰 Saldo actual: $${saldo}`));
   console.log(chalk.magenta("─".repeat(50)));
 }
+
+const mensajesSaldoInsuficiente = [
+  "❌ No te alcanza para jugar ese juego, juntá más plata y volvé.",
+  "⚠️ Che, sin plata no podés jugar, te lo digo por si no sabés.",
+  "🚫 Te estoy diciendo que no tenés plata para jugar...chau.",
+  "❗ Andá a juntar más plata para jugar, sino andate. . .pobre.",
+];
+
+let indiceMensajeGlobal = 0;
 
 async function jugar(nombre: string) {
   while (true) {
@@ -49,15 +59,11 @@ async function jugar(nombre: string) {
       continue; // volver a mostrar opciones
     }
 
-    // Validar si saldo alcanza para la apuesta mínima del juego
     if (saldo < juego.apuestaMinima) {
-      console.log(
-        chalk.redBright(
-          `❌ Saldo insuficiente para jugar "${juegoNombre}". Mínimo requerido: $${juego.apuestaMinima}, saldo actual: $${saldo}`
-        )
-      );
-      // Volver a mostrar opciones sin salir
-      continue;
+      const mensaje = mensajesSaldoInsuficiente[indiceMensajeGlobal % mensajesSaldoInsuficiente.length];
+      console.log(chalk.redBright(`${mensaje} (Intento para: "${juegoNombre}", saldo: $${saldo})`));
+      indiceMensajeGlobal++;
+      continue; // vuelve a pedir opción sin salir del ciclo
     }
 
     console.log(chalk.cyanBright(`\n🎮 Has seleccionado el juego: ${chalk.bold(juegoNombre)}\n`));
@@ -72,16 +78,15 @@ async function jugar(nombre: string) {
       console.log(chalk.red("⚠️  Error: " + (e instanceof Error ? e.message : "Error desconocido")));
     }
 
-    break; // Salir del while después de jugar con éxito
+    break; // salir del ciclo después de jugar
   }
 }
 
-
 async function main() {
-  mostrarEncabezado();
+  mostrarTitulo(); 
 
   if (saldo < 10) {
-    console.log(chalk.redBright("\n❌ Saldo insuficiente para jugar. junta platita y veni.\n"));
+    console.log(chalk.redBright("\n❌ Saldo insuficiente para jugar. juntá platita y vení.\n"));
     process.exit(0);
   }
 
@@ -116,6 +121,8 @@ async function main() {
 
     if (edad === 99) {
       console.log(chalk.cyanBright("¡👴🏻 Jubilado hasta en la vida! ¡Pero bueno, mientras pagues 😃👍🏻!"));
+    } else if (edad >= 18 && edad <= 99) {
+      console.log(chalk.greenBright("🆗 Sin problemas, acá no juzgamos por la edad, así que pasá y disfrutá 🎉"));
     }
 
     if (edad >= 18 && edad <= 99) break;
@@ -123,7 +130,7 @@ async function main() {
 
   let continuar = true;
   while (continuar) {
-    mostrarEncabezado();
+    mostrarSaldoActual();
     await jugar(nombre);
 
     if (saldo < 10) {
@@ -146,5 +153,4 @@ async function main() {
 
   console.log(chalk.yellowBright("\n🎉 ¡Gracias por jugar en el CASINO! 👋 Hasta la próxima."));
 }
-
 main();
