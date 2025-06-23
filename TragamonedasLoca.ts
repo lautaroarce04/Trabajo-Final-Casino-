@@ -1,9 +1,9 @@
-import { JuegoBase } from "./JuegoBase";
+import { Tragamonedas } from "./Tragamonedas";
 import chalk from "chalk";
 import inquirer from "inquirer";
 
-export class TragamonedasLoca extends JuegoBase {
-  private simbolos: string[];
+export class TragamonedasLoca extends Tragamonedas {
+  //private simbolos: string[];
 
   constructor() {
     super("Tragamonedas Loca", 20); // apuesta mínima de 20
@@ -11,7 +11,7 @@ export class TragamonedasLoca extends JuegoBase {
   }
 
   private async animarGiro(): Promise<void> {
-    for (let i = 0; i < 15; i++) {
+    for (let i = 0; i < 10; i++) {
       const tirada = Array.from({ length: 5 }, () =>
         chalk.magentaBright(this.simbolos[Math.floor(Math.random() * this.simbolos.length)])
       ).join("  ");

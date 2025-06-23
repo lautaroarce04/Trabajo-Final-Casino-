@@ -120,7 +120,7 @@ async function main() {
     edad = Number(respuesta.edadStr);
 
     if (edad === 99) {
-      console.log(chalk.cyanBright("¡👴🏻 Jubilado hasta en la vida! ¡Pero bueno, mientras pagues 😃👍🏻!"));
+      console.log(chalk.cyanBright("¡Jubilado hasta en la vida! ¡Pero bueno, mientras pagues pasa tranqui!"));
     } else if (edad >= 18 && edad <= 99) {
       console.log(chalk.greenBright("🆗 Sin problemas, acá no juzgamos por la edad, así que pasá y disfrutá 🎉"));
     }
