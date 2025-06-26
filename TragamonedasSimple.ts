@@ -2,9 +2,7 @@ import chalk from "chalk";
 import inquirer from "inquirer";
 import { Tragamonedas } from "./Tragamonedas";
 
-export class TragamonedasSimple extends Tragamonedas { 
-  //private simbolos = ["🍒", "🍋", "🍉", "⭐", "7️⃣", "🔔"];
-
+export class TragamonedasSimple extends Tragamonedas {
   constructor() {
     super("Tragamonedas Simple", 10);
   }
@@ -30,28 +28,12 @@ export class TragamonedasSimple extends Tragamonedas {
     console.log(chalk.green(`💰 Saldo actual: $${saldoActual}`));
     console.log(chalk.magenta("═".repeat(50)));
 
-    const { apuestaStr } = await inquirer.prompt([
-      {
-        type: "input",
-        name: "apuestaStr",
-        message: chalk.cyan(`? 💸 Ingrese monto a apostar (mínimo $${this.apuestaMinima}):`),
-        validate: (input: string) => {
-          const n = Number(input);
-          if (isNaN(n)) return "Debe ingresar un número válido";
-          if (n < this.apuestaMinima) return `La apuesta mínima es $${this.apuestaMinima}`;
-          if (n > saldoActual) return `Saldo insuficiente (actual: $${saldoActual})`;
-          return true;
-        },
-      },
-    ]);
-
-    const apuesta = Number(apuestaStr);
+    const apuesta = await this.pedirApuesta(saldoActual); // heredado
 
     await this.animarGiro();
 
-    const resultado = Array.from({ length: 3 }, () =>
-      this.simbolos[Math.floor(Math.random() * this.simbolos.length)]
-    );
+    const resultado = this.generarTirada(3); // heredado
+
     const tiradaFinal = resultado.map((s) => chalk.bold.yellow(s)).join("  ");
 
     console.clear();
@@ -67,11 +49,9 @@ export class TragamonedasSimple extends Tragamonedas {
     let gananciaNeta = 0;
 
     if (iguales) {
-      // Ganancia neta = premio - apuesta
       gananciaNeta = apuesta * 5 - apuesta;
       console.log(chalk.greenBright(`¡Bien! 3 iguales → Ganaste $${apuesta * 5} 🎉`));
     } else {
-      // Perdiste la apuesta completa
       gananciaNeta = -apuesta;
       console.log(chalk.red("No hubo suerte esta vez 💸"));
     }
@@ -79,4 +59,3 @@ export class TragamonedasSimple extends Tragamonedas {
     return gananciaNeta;
   }
 }
-

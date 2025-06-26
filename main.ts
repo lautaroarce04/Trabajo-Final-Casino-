@@ -94,30 +94,49 @@ async function main() {
   let edad = 0;
 
   while (true) {
-    const respuesta = await inquirer.prompt([
-      {
-        type: "input",
-        name: "nombre",
-        message: "🧠 Ingrese su nombre y apellido:",
-        validate: (input) => (input.trim() === "" ? "Debe ingresar un nombre" : true),
-      },
-      {
-        type: "input",
-        name: "edadStr",
-        message: "🔞 Ingrese su edad:",
-        validate: (input) => {
-          const edad = Number(input);
-          if (isNaN(edad)) return "Debe ingresar un número válido";
-          if (edad < 0) return "🤨 ¿Cómo vas a tener la vida en negativo?";
-          if (edad < 18) return "👶 No aceptamos a bebés 🍼";
-          if (edad > 99) return "💀 FOA, RE VIEJO. No aceptamos fósiles 🦖";
-          return true;
-        },
-      },
-    ]);
+ const { nombre: nombreIngresado } = await inquirer.prompt([
+  {
+    type: "input",
+    name: "nombre",
+    message: "🧠 Ingrese su nombre y apellido:",
+    validate: (input) => {
+      const limpio = input.trim();
 
-    nombre = respuesta.nombre;
-    edad = Number(respuesta.edadStr);
+      if (limpio === "") return "tenes que ingresar un nombre";
+      if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(limpio)) {
+        return "como te vas a llamar asi?🤨 ingresa tu verdadero nombre";
+      }
+
+      const palabras = limpio.split(/\s+/);
+      if (palabras.length < 2) return "te falto el nombre y/o apellido, por favor ingresalos";
+
+      return true;
+    },
+  },
+]);
+
+nombre = nombreIngresado.trim();
+
+console.log(chalk.green(`\n👋 Hola ${chalk.bold(nombre)}, te voy a pedir la edad para ver si podes entrar\n`));
+
+const { edadStr } = await inquirer.prompt([
+  {
+    type: "input",
+    name: "edadStr",
+    message: "🔞 Ingrese su edad:",
+    validate: (input) => {
+      const edad = Number(input);
+      if (isNaN(edad)) return "Debe ingresar un número válido";
+      if (edad < 0) return "🤨 ¿Cómo vas a tener la vida en negativo?";
+      if (edad < 18) return "👶 No aceptamos a bebés 🍼";
+      if (edad > 99) return "💀 FOA, RE VIEJO. No aceptamos fósiles 🦖";
+      return true;
+    },
+  },
+]);
+
+edad = Number(edadStr);
+
 
     if (edad === 99) {
       console.log(chalk.cyanBright("¡Jubilado hasta en la vida! ¡Pero bueno, mientras pagues pasa tranqui!"));
