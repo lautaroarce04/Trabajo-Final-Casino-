@@ -10,7 +10,7 @@ Cosas que instalar para que el codigo funcione correctamente:
 
 npm install readline-sync, npm install chalk, npm install inquirer, npm install prompt-sync, npm install -g typescript, npm install -g ts-node, npm install figlet.
 
-intrunciones de como jugar en el casino: 
+instrucciones de como jugar en el casino: 
 ¡ADVERTENCIA!: Se debe tener los npm instalados antes de jugar para que todo funcione correctamente
 1-Activar el progama usando "ts-node main.ts"
 2-Poner tu nombre y apellido 
