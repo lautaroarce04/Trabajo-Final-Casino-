@@ -5,7 +5,6 @@ import inquirer from "inquirer";
 export class TragamonedasLoca extends Tragamonedas {
   constructor() {
     super("Tragamonedas Loca", 20);
-    this.simbolos = ["🍒", "🍋", "🍉", "⭐", "7️⃣", "💎", "🔔"];
   }
 
   private async animarGiro(): Promise<void> {

@@ -4,12 +4,10 @@ import inquirer from "inquirer";
 
 export class RuletaSimple extends JuegoBase {
   private rojo = new Set([
-    1, 3, 5, 7, 9, 12, 14, 16, 18,
-    19, 21, 23, 25, 27, 30, 32, 34, 36,
+    1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36,
   ]);
   private negro = new Set([
-    2, 4, 6, 8, 10, 11, 13, 15, 17,
-    20, 22, 24, 26, 28, 29, 31, 33, 35,
+    2, 4, 6, 8, 10, 11, 13, 15, 17, 20, 22, 24, 26, 28, 29, 31, 33, 35,
   ]);
 
   constructor() {
@@ -52,7 +50,7 @@ export class RuletaSimple extends JuegoBase {
   async jugar(saldo: number): Promise<number> {
     this.validarApuesta(saldo);
 
-    // Mostrar selección del juego y tablero aquí
+    // Muestre selección del juego y tablero 
     console.log(chalk.greenBright(`\n🎮 Has seleccionado el juego: ${this.nombre}\n`));
     this.mostrarTabla();
 
@@ -169,7 +167,7 @@ export class RuletaSimple extends JuegoBase {
     let ganancia = 0;
 
     if (numerosElegidos.includes(numeroSalio)) {
-      const premio = apuestaPorNumero * 36;
+      const premio = apuestaPorNumero * 37;
       console.log(chalk.green(`¡Adivinaste el número! Ganaste $${premio}`));
       ganancia += premio;
     }
@@ -250,7 +248,7 @@ export class RuletaSimple extends JuegoBase {
   for (let i = 0; i < 20; i++) {
     const aleatorio = posibles[Math.floor(Math.random() * posibles.length)];
     const colorNum = this.colorNumero(aleatorio).trim(); // 
-    // Escribir en la misma línea reemplazando a otros numeros
+  
     process.stdout.write(`\r${colorNum}    `); // 
     await new Promise((r) => setTimeout(r, 100));
   }
